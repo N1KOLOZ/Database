@@ -1,10 +1,7 @@
-//
-// Created by n1kme on 12/29/2019.
-//
-
 #pragma once
 
-// System
+#include "date.h"
+
 #include <map>
 #include <set>
 #include <vector>
@@ -12,8 +9,6 @@
 #include <ostream>
 #include <algorithm>
 
-// Local
-#include "date.h"
 
 struct Entry {
     Date date;
@@ -24,7 +19,6 @@ std::ostream& operator<<(std::ostream& os, const Entry& entry);
 
 bool operator == (const Entry& lhs, const Entry& rhs);
 
-
 class Database {
 public:
     void Add(const Date& date, std::string events);
@@ -34,51 +28,56 @@ public:
     Entry Last(const Date& date) const;
 
     template<class Predicate>
-    int RemoveIf(Predicate p) {
-        int count = 0;
-
-        for (auto& dateToEvents : _datesToEvents) {
-
-            const Date& date = dateToEvents.first;
-            auto split_point = std::stable_partition(dateToEvents.second.begin(), dateToEvents.second.end(),
-                    [date, p](const std::string& event) {
-                return !p(date, event);
-            });
-
-            count += dateToEvents.second.end() - split_point;
-            dateToEvents.second.erase(split_point, dateToEvents.second.end());
-        }
-
-        for (auto it = _datesToEvents.begin(); it != _datesToEvents.end(); ) {
-            if (it->second.empty()) {
-                _datesToEvents.erase(it++);
-            } else {
-                ++it;
-            }
-        }
-
-        return count;
-    }
+    int RemoveIf(Predicate p);
 
     template<class Predicate>
-    std::vector<Entry> FindIf(Predicate p) const {
-        std::vector<Entry> result;
+    std::vector<Entry> FindIf(Predicate p) const;
+private:
+    std::map<Date, std::vector<std::string>> _dates_to_events;
+};
 
-        for (const auto& _dateToEvents : _datesToEvents) {
-            for (const auto& event : _dateToEvents.second) {
-                if ( p(_dateToEvents.first, event) ) {
-                    result.push_back( {_dateToEvents.first, event} );
-                }
+template<class Predicate>
+std::vector<Entry> Database::FindIf(Predicate p) const {
+    std::vector<Entry> result;
+
+    for (const auto& date_to_events : _dates_to_events) {
+        for (const auto& event : date_to_events.second) {
+            if ( p(date_to_events.first, event) ) {
+                result.push_back( {date_to_events.first, event} );
             }
         }
-
-        return result;
     }
 
+    return result;
+}
 
-private:
-    std::map<Date, std::vector<std::string>> _datesToEvents;
-};
+// returns number of removed events
+template<class Predicate>
+int Database::RemoveIf(Predicate p) {
+    int result = 0;
+
+    for (auto& date_to_events : _dates_to_events) {
+
+        const Date& date = date_to_events.first;
+        auto split_point = stable_partition(date_to_events.second.begin(), date_to_events.second.end(),
+                                            [date, p](const std::string& event) {
+                                                return !p(date, event);
+                                            });
+
+        result += date_to_events.second.end() - split_point;
+        date_to_events.second.erase(split_point, date_to_events.second.end());
+    }
+
+    for (auto it = _dates_to_events.begin(); it != _dates_to_events.end(); ) {
+        if (it->second.empty()) {
+            _dates_to_events.erase(it++);
+        } else {
+            ++it;
+        }
+    }
+
+    return result;
+}
 
 
 

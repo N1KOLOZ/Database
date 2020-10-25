@@ -1,87 +1,83 @@
-//
-// Created by n1kme on 12/30/2019.
-//
-
 #include "token.h"
 
 #include <stdexcept>
 
-using namespace std;
-
-vector<Token> Tokenize(istream& cl) {
-    vector<Token> tokens;
+std::vector<Token> Tokenize(std::istream& is) {
+    std::vector<Token> tokens;
 
     char c;
-    while (cl >> c) {
+    while (is >> c) {
         if (isdigit(c)) {
-            string date(1, c);
+            std::string date(1, c);
+
             for (int i = 0; i < 3; ++i) {
-                while (isdigit(cl.peek())) {
-                    date += cl.get();
+                while (isdigit(is.peek())) {
+                    date += is.get();
                 }
                 if (i < 2) {
-                    date += cl.get(); // Consume '-'
+                    date += is.get(); // Consume '-'
                 }
             }
+
             tokens.push_back({date, TokenType::DATE});
         } else if (c == '"') {
-            string event;
-            getline(cl, event, '"');
+            std::string event;
+            getline(is, event, '"');
             tokens.push_back({event, TokenType::EVENT});
         } else if (c == 'd') {
-            if (cl.get() == 'a' && cl.get() == 't' && cl.get() == 'e') {
+            if (is.get() == 'a' && is.get() == 't' && is.get() == 'e') {
                 tokens.push_back({"date", TokenType::COLUMN});
             } else {
-                throw logic_error("Unknown token");
+                throw std::logic_error("Unknown token");
             }
         } else if (c == 'e') {
-            if (cl.get() == 'v' && cl.get() == 'e' && cl.get() == 'n' &&
-                cl.get() == 't') {
+            if (is.get() == 'v' && is.get() == 'e' && is.get() == 'n' &&
+                is.get() == 't') {
                 tokens.push_back({"event", TokenType::COLUMN});
             } else {
-                throw logic_error("Unknown token");
+                throw std::logic_error("Unknown token");
             }
         } else if (c == 'A') {
-            if (cl.get() == 'N' && cl.get() == 'D') {
+            if (is.get() == 'N' && is.get() == 'D') {
                 tokens.push_back({"AND", TokenType::LOGICAL_OP});
             } else {
-                throw logic_error("Unknown token");
+                throw std::logic_error("Unknown token");
             }
         } else if (c == 'O') {
-            if (cl.get() == 'R') {
+            if (is.get() == 'R') {
                 tokens.push_back({"OR", TokenType::LOGICAL_OP});
             } else {
-                throw logic_error("Unknown token");
+                throw std::logic_error("Unknown token");
             }
         } else if (c == '(') {
             tokens.push_back({"(", TokenType::PAREN_LEFT});
         } else if (c == ')') {
             tokens.push_back({")", TokenType::PAREN_RIGHT});
         } else if (c == '<') {
-            if (cl.peek() == '=') {
-                cl.get();
+            if (is.peek() == '=') {
+                is.get();
                 tokens.push_back({"<=", TokenType::COMPARE_OP});
             } else {
                 tokens.push_back({"<", TokenType::COMPARE_OP});
             }
         } else if (c == '>') {
-            if (cl.peek() == '=') {
-                cl.get();
+            if (is.peek() == '=') {
+                is.get();
                 tokens.push_back({">=", TokenType::COMPARE_OP});
             } else {
                 tokens.push_back({">", TokenType::COMPARE_OP});
             }
         } else if (c == '=') {
-            if (cl.get() == '=') {
+            if (is.get() == '=') {
                 tokens.push_back({"==", TokenType::COMPARE_OP});
             } else {
-                throw logic_error("Unknown token");
+                throw std::logic_error("Unknown token");
             }
         } else if (c == '!') {
-            if (cl.get() == '=') {
+            if (is.get() == '=') {
                 tokens.push_back({"!=", TokenType::COMPARE_OP});
             } else {
-                throw logic_error("Unknown token");
+                throw std::logic_error("Unknown token");
             }
         }
     }

@@ -1,25 +1,17 @@
-//
-// Created by n1kme on 1/1/2020.
-//
+#include "date.h"
 
-// System
 #include <iomanip>
 #include <tuple>
 #include <stdexcept>
 
-// Local
-#include "date.h"
-
-
-Date::Date(int year_, int month_, int day_) :
-        year(year_),
-        month(month_),
-        day(day_){
-
+Date::Date(int year, int month, int day) :
+        year(year),
+        month(month),
+        day(day)
+{
 }
 
 Date ParseDate(std::istream& date_stream) {
-
     bool dateIsCorrect = true;
 
     int year;
@@ -42,14 +34,15 @@ Date ParseDate(std::istream& date_stream) {
     return Date(year, month, day);
 }
 
-ostream& operator << (ostream& os, const Date& date) {
-    os << setw(4) << setfill('0') << date.year <<
-    "-" << setw(2) << setfill('0') << date.month <<
-    "-" << setw(2) << setfill('0') << date.day;
+std::ostream& operator<<(std::ostream& os, const Date& date) {
+    os << std::setw(4) << std::setfill('0') << date.year << "-"
+       << std::setw(2) << std::setfill('0') << date.month << "-"
+       << std::setw(2) << std::setfill('0') << date.day;
+
     return os;
 }
 
 
 bool operator<(const Date& lhs, const Date& rhs) {
-    return tie(lhs.year, lhs.month, lhs.day) < tie(rhs.year, rhs.month, rhs.day);
+    return std::tie(lhs.year, lhs.month, lhs.day) < std::tie(rhs.year, rhs.month, rhs.day);
 }

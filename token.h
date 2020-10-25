@@ -1,13 +1,7 @@
-//
-// Created by n1kme on 12/30/2019.
-//
-
 #pragma once
 
 #include <sstream>
 #include <vector>
-
-using namespace std;
 
 enum class TokenType {
     DATE,
@@ -20,8 +14,8 @@ enum class TokenType {
 };
 
 struct Token {
-    const string value;
+    const std::string value;
     const TokenType type;
 };
 
-vector<Token> Tokenize(istream& cl);
+std::vector<Token> Tokenize(std::istream& input);
